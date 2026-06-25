@@ -7,6 +7,7 @@
   const THEMES = [
     { id: "github",        name: "GitHub Light" },
     { id: "github-dark",   name: "GitHub Dark" },
+    { id: "raw",           name: "Raw Markdown" },
     { id: "sepia",         name: "Sepia / Book" },
     { id: "academic",      name: "Academic" },
     { id: "solarized",     name: "Solarized" },
@@ -26,11 +27,28 @@
   // ---- Markdown rendering ----
   marked.setOptions({ gfm: true, breaks: false });
 
+  // Last loaded source, kept so we can re-display when the style changes
+  // (e.g. switching to/from the "Raw Markdown" view).
+  let currentMarkdown = "";
+
   function render(markdown) {
-    const dirty = marked.parse(markdown || "");
-    preview.innerHTML = DOMPurify.sanitize(dirty);
-    document.body.classList.toggle("has-content", markdown.trim().length > 0);
+    currentMarkdown = markdown || "";
+    display();
     dropZone.scrollTo({ top: 0 });
+  }
+
+  function display() {
+    if (document.body.getAttribute("data-theme") === "raw") {
+      // Show the unrendered source verbatim. textContent escapes it safely.
+      const pre = document.createElement("pre");
+      pre.className = "raw-source";
+      pre.textContent = currentMarkdown;
+      preview.replaceChildren(pre);
+    } else {
+      const dirty = marked.parse(currentMarkdown);
+      preview.innerHTML = DOMPurify.sanitize(dirty);
+    }
+    document.body.classList.toggle("has-content", currentMarkdown.trim().length > 0);
   }
 
   // ---- Theme handling ----
@@ -48,6 +66,7 @@
     document.body.setAttribute("data-theme", theme);
     themeSelect.value = theme;
     try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
+    display(); // re-render: rendered HTML vs. raw source depends on the theme
   }
 
   // ---- File loading ----

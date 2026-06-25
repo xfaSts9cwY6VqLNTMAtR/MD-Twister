@@ -103,6 +103,26 @@ body[data-theme="github-dark"] .markdown-body pre { background: #161b22; }
 body[data-theme="github-dark"] .markdown-body :not(pre) > code { background: #6e768166; }
 
 /* ============================================================
+   2b. Raw Markdown — show the source text, unrendered
+   ============================================================ */
+body[data-theme="raw"] #drop-zone { background: #f6f8fa; }
+body[data-theme="raw"] .markdown-body { --content-width: 900px; }
+body[data-theme="raw"] .raw-source {
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;       /* preserve markdown whitespace, wrap long lines */
+  word-wrap: break-word;
+  tab-size: 2;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  color: #1f2328;
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+}
+
+/* ============================================================
    3. Sepia / Book
    ============================================================ */
 body[data-theme="sepia"] #drop-zone { background: #ede0c8; }
