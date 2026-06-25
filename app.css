@@ -174,3 +174,33 @@ kbd {
   .brand .title { display: none; }
   .controls { gap: 0.4rem; }
 }
+
+/* ---- Print / Export PDF ----
+   Drop the app chrome and force a clean black-on-white document so the
+   PDF is legible regardless of which screen theme is active (dark themes
+   would otherwise waste ink / render unreadable). */
+@media print {
+  .toolbar, .empty-state { display: none !important; }
+  html, body, #drop-zone { background: #fff !important; }
+  #drop-zone { overflow: visible; padding: 0; }
+
+  .markdown-body {
+    max-width: none !important;
+    margin: 0 !important;
+    color: #000 !important;
+    text-shadow: none !important;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .markdown-body a { color: #000 !important; text-decoration: underline; }
+  .markdown-body h1::before, .markdown-body h2::before { content: none !important; }
+  .markdown-body pre { background: #f4f4f4 !important; border: 1px solid #ccc; color: #000 !important; }
+  .markdown-body :not(pre) > code { background: #f0f0f0 !important; color: #000 !important; }
+  .markdown-body th { background: #f0f0f0 !important; }
+  .raw-source { white-space: pre-wrap !important; color: #000 !important; }
+
+  /* Keep related blocks together across page breaks. */
+  tr, pre, blockquote, img, table { page-break-inside: avoid; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+
+  @page { margin: 18mm; }
+}
