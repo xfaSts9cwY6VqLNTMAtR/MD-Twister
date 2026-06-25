@@ -7,10 +7,11 @@
   <meta name="description" content="Import a Markdown file, preview it, and twist between a selection of beautiful styles." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🌀</text></svg>" />
 
-  <!-- Markdown parser + sanitizer + PDF export, vendored locally (no backend) -->
+  <!-- Markdown parser + sanitizer + PDF export + PDF reader, vendored (no backend) -->
   <script src="vendor/marked.min.js"></script>
   <script src="vendor/purify.min.js"></script>
   <script src="vendor/html2pdf.bundle.min.js"></script>
+  <script src="vendor/pdf.min.js"></script>
 
   <!-- ?v=__BUILD__ is rewritten to a unique build id on each deploy (see
        .github/workflows/deploy.yml) so browsers always fetch fresh assets. -->
@@ -30,8 +31,8 @@
         <select id="theme-select" aria-label="Choose a style"></select>
       </label>
 
-      <button id="import-btn" class="btn">Import .md</button>
-      <input id="file-input" type="file" accept=".md,.markdown,.mdown,.txt,text/markdown,text/plain" hidden />
+      <button id="import-btn" class="btn">Import</button>
+      <input id="file-input" type="file" accept=".md,.markdown,.mdown,.txt,.pdf,text/markdown,text/plain,application/pdf" hidden />
 
       <div class="sample-menu">
         <button id="sample-btn" class="btn ghost" aria-haspopup="true" aria-expanded="false">Load sample ▾</button>
@@ -51,9 +52,9 @@
     <div id="empty-state" class="empty-state">
       <div class="empty-card">
         <div class="empty-emoji">📄</div>
-        <h1>Drop a Markdown file here</h1>
+        <h1>Drop a Markdown or PDF file here</h1>
         <p>…or <button id="empty-import" class="link-btn">choose a file</button>, paste with <kbd>Ctrl/⌘ + V</kbd>, or load a sample: <button id="empty-sample" class="link-btn">demo</button> · <button id="empty-sample-de" class="link-btn">Prüfungsbericht</button>.</p>
-        <p class="hint">Pick a <strong>Style</strong> in the top bar and watch it twist. Everything runs in your browser — nothing is uploaded.</p>
+        <p class="hint">Drop a <strong>PDF</strong> and it's converted to Markdown right here. Pick a <strong>Style</strong> to twist it. Everything runs in your browser — nothing is uploaded.</p>
       </div>
     </div>
   </main>

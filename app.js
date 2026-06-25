@@ -74,17 +74,160 @@
     return /\.(md|markdown|mdown|mkd|txt)$/i.test(file.name) ||
       file.type === "text/markdown" || file.type === "text/plain";
   }
+  function isPdfFile(file) {
+    return /\.pdf$/i.test(file.name) || file.type === "application/pdf";
+  }
 
   function loadFile(file) {
     if (!file) return;
+    if (isPdfFile(file)) { loadPdf(file); return; }
     if (!isMarkdownFile(file)) {
-      alert("Please choose a Markdown (.md) or text file.");
+      alert("Please choose a Markdown (.md), text, or PDF file.");
       return;
     }
     const reader = new FileReader();
     reader.onload = (e) => render(String(e.target.result));
     reader.onerror = () => alert("Sorry, that file could not be read.");
     reader.readAsText(file);
+  }
+
+  // ---- PDF → Markdown (in-browser, via pdf.js) ----
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
+  }
+
+  async function loadPdf(file) {
+    if (!window.pdfjsLib) { alert("PDF support failed to load."); return; }
+    preview.innerHTML =
+      '<p style="text-align:center;opacity:.7;margin-top:2rem">Converting PDF to Markdown…</p>';
+    document.body.classList.add("has-content");
+    try {
+      const data = await file.arrayBuffer();
+      const md = await pdfToMarkdown(data);
+      if (!md.trim()) {
+        alert("No selectable text found — this looks like a scanned/image PDF, which needs OCR (not supported here).");
+        render("");
+        return;
+      }
+      render(md);
+    } catch (err) {
+      alert("Could not convert that PDF: " + (err && err.message ? err.message : err));
+      render("");
+    }
+  }
+
+  // Reconstruct Markdown from a PDF's text layer using simple layout heuristics:
+  // font size → heading level, vertical gaps → paragraph breaks, bullet/number
+  // prefixes → lists. Works on text-based PDFs; scanned PDFs have no text layer.
+  async function pdfToMarkdown(data) {
+    const pdf = await pdfjsLib.getDocument({ data, isEvalSupported: false }).promise;
+
+    // Pass 1: collect lines per page.
+    const pages = [];
+    const allSizes = [];
+    for (let n = 1; n <= pdf.numPages; n++) {
+      const page = await pdf.getPage(n);
+      const content = await page.getTextContent();
+      const lines = groupItemsIntoLines(content.items);
+      lines.forEach((l) => { if (l.text) allSizes.push(l.size); });
+      pages.push(lines);
+    }
+    const bodySize = median(allSizes) || 12;
+
+    // Pass 2: turn lines into Markdown blocks.
+    const blocks = [];
+    let paragraph = [];
+    const flushPara = () => {
+      if (paragraph.length) { blocks.push(dehyphenate(paragraph.join(" "))); paragraph = []; }
+    };
+
+    pages.forEach((lines) => {
+      let prevY = null, prevSize = bodySize;
+      lines.forEach((line) => {
+        const text = line.text;
+        if (!text) return;
+        const ratio = line.size / bodySize;
+        const level = ratio >= 1.8 ? 1 : ratio >= 1.45 ? 2 : ratio >= 1.18 ? 3 : 0;
+        const isBullet = /^[•▪◦·*‣⁃\-–]\s+/.test(text);
+        const isNumbered = /^\d+[.)]\s+/.test(text);
+        const gap = prevY != null ? prevY - line.y : 0;
+
+        if (level) {
+          flushPara();
+          blocks.push("#".repeat(level) + " " + text);
+        } else if (isBullet || isNumbered) {
+          flushPara();
+          const item = isBullet
+            ? text.replace(/^[•▪◦·*‣⁃\-–]\s+/, "- ")
+            : text.replace(/^(\d+)[.)]\s+/, "$1. ");
+          blocks.push(item);
+        } else {
+          if (gap > prevSize * 1.7) flushPara(); // big vertical gap → new paragraph
+          paragraph.push(text);
+        }
+        prevY = line.y;
+        prevSize = line.size;
+      });
+      flushPara(); // page boundary always ends a paragraph
+    });
+    flushPara();
+
+    return blocks.join("\n\n");
+  }
+
+  // Group text items sharing a baseline into single lines (top→bottom, left→right).
+  function groupItemsIntoLines(items) {
+    const its = items
+      .map((it) => ({
+        x: it.transform[4],
+        y: it.transform[5],
+        w: it.width || 0,
+        size: it.height || Math.abs(it.transform[3]) || 12,
+        str: it.str || "",
+      }))
+      .filter((it) => it.str.length);
+    its.sort((a, b) => b.y - a.y || a.x - b.x);
+
+    const lines = [];
+    let cur = null;
+    for (const it of its) {
+      if (cur && Math.abs(it.y - cur.y) <= Math.max(2, cur.size * 0.5)) {
+        cur.parts.push(it);
+        if (it.size > cur.size) cur.size = it.size;
+      } else {
+        if (cur) lines.push(finalizeLine(cur));
+        cur = { y: it.y, size: it.size, parts: [it] };
+      }
+    }
+    if (cur) lines.push(finalizeLine(cur));
+    return lines;
+  }
+
+  function finalizeLine(cur) {
+    cur.parts.sort((a, b) => a.x - b.x);
+    let text = "";
+    let prev = null;
+    for (const p of cur.parts) {
+      if (prev) {
+        const gap = p.x - (prev.x + prev.w);
+        if (gap > cur.size * 0.25 && !/\s$/.test(text) && !/^\s/.test(p.str)) text += " ";
+      }
+      text += p.str;
+      prev = p;
+    }
+    return { text: text.replace(/\s+/g, " ").trim(), y: cur.y, size: cur.size };
+  }
+
+  function dehyphenate(s) {
+    // join words split across line breaks: "Wirtschafts- prüfer" → "Wirtschaftsprüfer"
+    return s.replace(/(\p{L})-\s+(\p{Ll})/gu, "$1$2");
+  }
+
+  function median(arr) {
+    if (!arr.length) return 0;
+    const a = arr.slice().sort((x, y) => x - y);
+    const m = Math.floor(a.length / 2);
+    return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
   }
 
   // ---- Wire up the UI ----
