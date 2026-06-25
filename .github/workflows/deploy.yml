@@ -25,6 +25,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Stamp cache-busting build id into index.html
+        # Replace ?v=__BUILD__ with this commit's short SHA so every deploy
+        # serves uniquely-named assets and browsers never show stale files.
+        run: sed -i "s/__BUILD__/${GITHUB_SHA::8}/g" index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .            # the repo root is the site (static files)

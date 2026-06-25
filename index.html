@@ -11,8 +11,10 @@
   <script src="vendor/marked.min.js"></script>
   <script src="vendor/purify.min.js"></script>
 
-  <link rel="stylesheet" href="themes.css" />
-  <link rel="stylesheet" href="app.css" />
+  <!-- ?v=__BUILD__ is rewritten to a unique build id on each deploy (see
+       .github/workflows/deploy.yml) so browsers always fetch fresh assets. -->
+  <link rel="stylesheet" href="themes.css?v=__BUILD__" />
+  <link rel="stylesheet" href="app.css?v=__BUILD__" />
 </head>
 <body>
   <header class="toolbar">
@@ -47,6 +49,6 @@
     </div>
   </main>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=__BUILD__"></script>
 </body>
 </html>
