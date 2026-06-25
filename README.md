@@ -9,8 +9,11 @@ Everything runs in the browser — files are never uploaded anywhere.
 ## Use it
 
 - **Import** a `.md` file via the button, drag & drop, or paste text directly.
+- **Drop a PDF** and it's converted to Markdown in your browser (text-based PDFs;
+  scanned/image PDFs aren't supported as that needs OCR).
 - **Pick a style** from the dropdown in the top bar. Your choice is remembered.
-- Click **Load sample** to see a demo document.
+- **Load sample** to see a demo document or a German IDW-style Prüfungsbericht.
+- **Export PDF** to download the document in the currently selected style.
 
 ## Run locally
 
@@ -34,5 +37,7 @@ Source: GitHub Actions**. After that, merging to `main` puts it online at
 
 Plain HTML/CSS/JS — no build step. Markdown parsing by
 [marked](https://marked.js.org/), sanitised with
-[DOMPurify](https://github.com/cure53/DOMPurify). Both are vendored under
+[DOMPurify](https://github.com/cure53/DOMPurify); PDF export via
+[html2pdf.js](https://github.com/eKoopmans/html2pdf.js) and PDF import via
+Mozilla [pdf.js](https://mozilla.github.io/pdf.js/). All are vendored under
 `vendor/` so the app is fully self-contained (works offline, no CDN).
