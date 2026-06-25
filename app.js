@@ -137,15 +137,18 @@
       return;
     }
 
-    // Build a clean, light, print-friendly sheet off-screen so the PDF looks
-    // the same regardless of the active screen theme.
+    const theme = document.body.getAttribute("data-theme") || "github";
+    const isRaw = theme === "raw";
+
+    // Render into a .markdown-body inside the active theme so the PDF inherits
+    // the currently selected style (fonts, colours, background).
     const sheet = document.createElement("div");
-    sheet.className = "pdf-sheet";
+    sheet.className = "markdown-body pdf-export";
     let filename = "document";
 
-    if (document.body.getAttribute("data-theme") === "raw") {
+    if (isRaw) {
       const pre = document.createElement("pre");
-      pre.className = "pdf-raw";
+      pre.className = "raw-source";
       pre.textContent = currentMarkdown;
       sheet.appendChild(pre);
     } else {
@@ -160,20 +163,36 @@
       }
     }
 
+    // A4 page proportions at ~96dpi; padding gives the document its margins so
+    // the themed background fills the whole page edge-to-edge.
+    const pageW = 794;
+    const pageH = Math.round((pageW * 297) / 210);
+    sheet.style.cssText =
+      "width:" + pageW + "px;max-width:none;box-sizing:border-box;padding:54px 60px;margin:0;";
+
+    // Match the page background to the theme's surface colour.
+    const bg = getComputedStyle(dropZone).backgroundColor || "#ffffff";
+    sheet.style.background = bg;
+
     const holder = document.createElement("div");
     holder.style.cssText = "position:fixed;left:-10000px;top:0;";
     holder.appendChild(sheet);
     document.body.appendChild(holder);
 
+    // Pad the sheet up to a whole number of pages so dark themes don't leave a
+    // white gap at the bottom of the last page.
+    const fullPages = Math.max(1, Math.ceil(sheet.scrollHeight / pageH));
+    sheet.style.minHeight = fullPages * pageH + "px";
+
     const restore = sampleBtnBusy($("#pdf-btn"), "Exporting…");
     const cleanup = () => { holder.remove(); restore(); };
 
     html2pdf().set({
-      margin: [15, 14, 18, 14],
+      margin: 0,
       filename: filename + ".pdf",
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: bg },
+      jsPDF: { unit: "px", format: [pageW, pageH], orientation: "portrait" },
       pagebreak: { mode: ["css", "legacy"] },
     }).from(sheet).save().then(cleanup, cleanup);
   }
