@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MD Twister — Markdown Viewer</title>
+  <meta name="description" content="Import a Markdown file, preview it, and twist between a selection of beautiful styles." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🌀</text></svg>" />
+
+  <!-- Markdown parser + sanitizer, vendored locally (client-side, no backend) -->
+  <script src="vendor/marked.min.js"></script>
+  <script src="vendor/purify.min.js"></script>
+
+  <link rel="stylesheet" href="themes.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <header class="toolbar">
+    <div class="brand">
+      <span class="logo">🌀</span>
+      <span class="title">MD&nbsp;Twister</span>
+    </div>
+
+    <div class="controls">
+      <label class="theme-picker">
+        <span>Style</span>
+        <select id="theme-select" aria-label="Choose a style"></select>
+      </label>
+
+      <button id="import-btn" class="btn">Import .md</button>
+      <input id="file-input" type="file" accept=".md,.markdown,.mdown,.txt,text/markdown,text/plain" hidden />
+
+      <button id="sample-btn" class="btn ghost">Load sample</button>
+    </div>
+  </header>
+
+  <main id="drop-zone">
+    <article id="preview" class="markdown-body"></article>
+
+    <div id="empty-state" class="empty-state">
+      <div class="empty-card">
+        <div class="empty-emoji">📄</div>
+        <h1>Drop a Markdown file here</h1>
+        <p>…or <button id="empty-import" class="link-btn">choose a file</button>, paste with <kbd>Ctrl/⌘ + V</kbd>, or <button id="empty-sample" class="link-btn">load the sample</button>.</p>
+        <p class="hint">Pick a <strong>Style</strong> in the top bar and watch it twist. Everything runs in your browser — nothing is uploaded.</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
