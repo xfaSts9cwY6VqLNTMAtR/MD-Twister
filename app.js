@@ -102,6 +102,11 @@
   $("#sample-btn").addEventListener("click", () => render(SAMPLE));
   $("#empty-sample").addEventListener("click", () => render(SAMPLE));
 
+  // Export to PDF via the browser's print dialog ("Save as PDF"). Print
+  // styles (app.css @media print) strip the UI chrome and force a clean
+  // light layout regardless of the active screen theme.
+  $("#pdf-btn").addEventListener("click", () => window.print());
+
   // Drag & drop
   ["dragenter", "dragover"].forEach((evt) =>
     dropZone.addEventListener(evt, (e) => {
@@ -167,6 +172,138 @@
     "",
     "Made to get a demo online *fast*.",
   ].join("\n");
+
+  // ---- Alternative sample: a German IDW-style audit report (fictional) ----
+  // Structured after IDW PS 450 n.F. (Prüfungsbericht) with a Bestätigungs-
+  // vermerk per IDW PS 400 n.F. All names and figures are invented.
+  const SAMPLE_PRUEFBERICHT = `# Prüfungsbericht
+
+## über die Prüfung des Jahresabschlusses zum 31. Dezember 2025 und des Lageberichts für das Geschäftsjahr 2025
+
+**Muster Maschinenbau GmbH, Musterstadt**
+
+> *Hinweis: Dies ist ein fiktives Musterdokument zur Veranschaulichung. Es handelt sich nicht um einen echten Prüfungsbericht. Sämtliche Namen, Zahlen und Sachverhalte sind frei erfunden.*
+
+| | |
+| --- | --- |
+| **Mandant** | Muster Maschinenbau GmbH, Industriestraße 7, 12345 Musterstadt |
+| **Abschlussprüfer** | Beispiel & Partner mbB Wirtschaftsprüfungsgesellschaft, Musterstadt |
+| **Berichtsstandard** | IDW PS 450 n.F. |
+| **Geschäftsjahr** | 1. Januar 2025 bis 31. Dezember 2025 |
+
+---
+
+## 1. Prüfungsauftrag
+
+Die gesetzlichen Vertreter der **Muster Maschinenbau GmbH, Musterstadt** (nachfolgend „Gesellschaft") haben uns mit Beschluss der Gesellschafterversammlung vom 14. März 2025 zum Abschlussprüfer für das Geschäftsjahr 2025 bestellt und beauftragt, den Jahresabschluss unter Einbeziehung der Buchführung sowie den Lagebericht zu prüfen.
+
+Dem Auftrag liegen die *Allgemeinen Auftragsbedingungen für Wirtschaftsprüfer und Wirtschaftsprüfungsgesellschaften* in der Fassung vom 1. Januar 2017 zugrunde. Die Verantwortlichkeit gegenüber Dritten richtet sich nach **Nr. 9 dieser Auftragsbedingungen**.
+
+## 2. Grundsätzliche Feststellungen
+
+### 2.1 Stellungnahme zur Beurteilung der Lage durch die gesetzlichen Vertreter
+
+Die gesetzlichen Vertreter beurteilen die Lage der Gesellschaft im Lagebericht insgesamt zutreffend. Der Lagebericht steht in Einklang mit dem Jahresabschluss, vermittelt ein zutreffendes Bild von der Lage der Gesellschaft und stellt die Chancen und Risiken der künftigen Entwicklung zutreffend dar.
+
+### 2.2 Feststellungen zur Unternehmensfortführung
+
+Wir haben keine Sachverhalte festgestellt, die der Annahme der Fortführung der Unternehmenstätigkeit (*Going Concern*) entgegenstehen. Die Liquiditätslage ist nach unserer Beurteilung geordnet; die bestehenden Kreditlinien sind bis zum 30. Juni 2027 vertraglich zugesagt.
+
+### 2.3 Feststellungen zu Unrichtigkeiten oder Verstößen
+
+Im Rahmen unserer Prüfung haben wir **keine** Unrichtigkeiten oder Verstöße gegen gesetzliche Vorschriften oder den Gesellschaftsvertrag festgestellt, die für die Rechnungslegung von Bedeutung sind.
+
+## 3. Gegenstand, Art und Umfang der Prüfung
+
+Gegenstand unserer Prüfung waren der Jahresabschluss zum 31. Dezember 2025 — bestehend aus **Bilanz**, **Gewinn- und Verlustrechnung** sowie **Anhang** — unter Einbeziehung der Buchführung und der Lagebericht.
+
+Wir haben unsere Prüfung nach **§ 317 HGB** unter Beachtung der vom Institut der Wirtschaftsprüfer (IDW) festgestellten deutschen Grundsätze ordnungsmäßiger Abschlussprüfung vorgenommen. Danach ist die Prüfung so zu planen und durchzuführen, dass Unrichtigkeiten und Verstöße, die sich auf die Darstellung des Bildes der Vermögens-, Finanz- und Ertragslage wesentlich auswirken, mit hinreichender Sicherheit erkannt werden.
+
+Bei der Festlegung der Prüfungshandlungen wurden folgende Schwerpunkte gesetzt:
+
+1. Werthaltigkeit der Vorräte und der Forderungen aus Lieferungen und Leistungen
+2. Vollständigkeit und Bewertung der Rückstellungen
+3. Periodengerechte Abgrenzung der Umsatzerlöse (Realisationsprinzip)
+4. Ordnungsmäßigkeit des internen Kontrollsystems der Finanzbuchhaltung
+
+## 4. Feststellungen und Erläuterungen zur Rechnungslegung
+
+### 4.1 Ordnungsmäßigkeit der Rechnungslegung
+
+Die Buchführung und die geprüften Unterlagen entsprechen nach unseren Feststellungen den gesetzlichen Vorschriften und den ergänzenden Bestimmungen des Gesellschaftsvertrags. Der Jahresabschluss ist aus der Buchführung ordnungsgemäß entwickelt.
+
+### 4.2 Gesamtaussage des Jahresabschlusses
+
+Der Jahresabschluss vermittelt unter Beachtung der Grundsätze ordnungsmäßiger Buchführung ein den tatsächlichen Verhältnissen entsprechendes Bild der Vermögens-, Finanz- und Ertragslage. Die wesentlichen Bilanzposten stellen sich verkürzt wie folgt dar:
+
+| Aktiva | 31.12.2025 (T€) | 31.12.2024 (T€) |
+| --- | ---: | ---: |
+| Anlagevermögen | 18.420 | 17.110 |
+| Vorräte | 9.860 | 8.940 |
+| Forderungen aus L&L | 6.215 | 5.880 |
+| Liquide Mittel | 3.540 | 2.970 |
+| **Summe Aktiva** | **38.035** | **34.900** |
+
+| Passiva | 31.12.2025 (T€) | 31.12.2024 (T€) |
+| --- | ---: | ---: |
+| Eigenkapital | 16.900 | 15.240 |
+| Rückstellungen | 7.310 | 6.980 |
+| Verbindlichkeiten | 13.825 | 12.680 |
+| **Summe Passiva** | **38.035** | **34.900** |
+
+Die Umsatzerlöse stiegen gegenüber dem Vorjahr um **8,7 %** auf 42,6 Mio. €; das Jahresergebnis nach Steuern beträgt 2,1 Mio. € (Vorjahr: 1,6 Mio. €).
+
+## 5. Bestätigungsvermerk
+
+Wir haben den Jahresabschluss geprüft und erteilen folgenden Bestätigungsvermerk:
+
+### Prüfungsurteile
+
+Nach unserer Beurteilung aufgrund der bei der Prüfung gewonnenen Erkenntnisse
+
+- entspricht der beigefügte Jahresabschluss in allen wesentlichen Belangen den deutschen, für Kapitalgesellschaften geltenden handelsrechtlichen Vorschriften und vermittelt unter Beachtung der Grundsätze ordnungsmäßiger Buchführung ein den tatsächlichen Verhältnissen entsprechendes Bild der Vermögens-, Finanz- und Ertragslage der Gesellschaft zum 31. Dezember 2025;
+- vermittelt der beigefügte Lagebericht insgesamt ein zutreffendes Bild von der Lage der Gesellschaft.
+
+Gemäß **§ 322 Abs. 3 Satz 1 HGB** erklären wir, dass unsere Prüfung zu **keinen Einwendungen** gegen die Ordnungsmäßigkeit des Jahresabschlusses und des Lageberichts geführt hat.
+
+### Grundlage für die Prüfungsurteile
+
+Wir haben unsere Prüfung in Übereinstimmung mit § 317 HGB unter Beachtung der vom IDW festgestellten deutschen Grundsätze ordnungsmäßiger Abschlussprüfung durchgeführt. Wir sind von der Gesellschaft unabhängig und haben unsere sonstigen deutschen Berufspflichten in Übereinstimmung mit diesen Anforderungen erfüllt.
+
+### Verantwortung der gesetzlichen Vertreter
+
+Die gesetzlichen Vertreter sind verantwortlich für die Aufstellung des Jahresabschlusses und des Lageberichts sowie für die Vorkehrungen, die sie als notwendig erachtet haben, um die Aufstellung eines Jahresabschlusses zu ermöglichen, der frei von wesentlichen — beabsichtigten oder unbeabsichtigten — falschen Darstellungen ist.
+
+### Verantwortung des Abschlussprüfers
+
+Unsere Zielsetzung ist, hinreichende Sicherheit darüber zu erlangen, ob der Jahresabschluss als Ganzes frei von wesentlichen falschen Darstellungen ist, sowie einen Bestätigungsvermerk zu erteilen, der unsere Prüfungsurteile beinhaltet.
+
+---
+
+Musterstadt, den 12. April 2026
+
+**Beispiel & Partner mbB**
+Wirtschaftsprüfungsgesellschaft
+
+| | |
+| --- | --- |
+| gez. *Dr. Erika Beispiel* | gez. *Hans Muster* |
+| Wirtschaftsprüferin | Wirtschaftsprüfer |
+
+---
+
+### Anlagen
+
+1. Jahresabschluss zum 31. Dezember 2025 (Bilanz, Gewinn- und Verlustrechnung, Anhang)
+2. Lagebericht für das Geschäftsjahr 2025
+3. Allgemeine Auftragsbedingungen für Wirtschaftsprüfer und Wirtschaftsprüfungsgesellschaften
+`;
+
+  // Expose samples so the buttons/links can load them
+  const SAMPLES = { default: SAMPLE, pruefbericht: SAMPLE_PRUEFBERICHT };
+
+  $("#sample-de-btn").addEventListener("click", () => render(SAMPLES.pruefbericht));
+  $("#empty-sample-de").addEventListener("click", () => render(SAMPLES.pruefbericht));
 
   render(""); // start on the empty state
 })();
