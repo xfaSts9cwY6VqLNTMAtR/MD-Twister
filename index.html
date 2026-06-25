@@ -7,9 +7,10 @@
   <meta name="description" content="Import a Markdown file, preview it, and twist between a selection of beautiful styles." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🌀</text></svg>" />
 
-  <!-- Markdown parser + sanitizer, vendored locally (client-side, no backend) -->
+  <!-- Markdown parser + sanitizer + PDF export, vendored locally (no backend) -->
   <script src="vendor/marked.min.js"></script>
   <script src="vendor/purify.min.js"></script>
+  <script src="vendor/html2pdf.bundle.min.js"></script>
 
   <!-- ?v=__BUILD__ is rewritten to a unique build id on each deploy (see
        .github/workflows/deploy.yml) so browsers always fetch fresh assets. -->
@@ -32,8 +33,14 @@
       <button id="import-btn" class="btn">Import .md</button>
       <input id="file-input" type="file" accept=".md,.markdown,.mdown,.txt,text/markdown,text/plain" hidden />
 
-      <button id="sample-btn" class="btn ghost">Sample</button>
-      <button id="sample-de-btn" class="btn ghost">Prüfungsbericht</button>
+      <div class="sample-menu">
+        <button id="sample-btn" class="btn ghost" aria-haspopup="true" aria-expanded="false">Load sample ▾</button>
+        <div id="sample-list" class="menu" role="menu" hidden>
+          <button class="menu-item" role="menuitem" data-sample="default">Demo document</button>
+          <button class="menu-item" role="menuitem" data-sample="pruefbericht">Prüfungsbericht (DE)</button>
+        </div>
+      </div>
+
       <button id="pdf-btn" class="btn ghost">Export PDF</button>
     </div>
   </header>

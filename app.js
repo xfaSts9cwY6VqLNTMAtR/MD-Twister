@@ -99,13 +99,92 @@
   $("#empty-import").addEventListener("click", () => fileInput.click());
   fileInput.addEventListener("change", (e) => loadFile(e.target.files[0]));
 
-  $("#sample-btn").addEventListener("click", () => render(SAMPLE));
-  $("#empty-sample").addEventListener("click", () => render(SAMPLE));
+  // ---- "Load sample" dropdown ----
+  const sampleBtn = $("#sample-btn");
+  const sampleList = $("#sample-list");
 
-  // Export to PDF via the browser's print dialog ("Save as PDF"). Print
-  // styles (app.css @media print) strip the UI chrome and force a clean
-  // light layout regardless of the active screen theme.
-  $("#pdf-btn").addEventListener("click", () => window.print());
+  function loadSample(key) { render(SAMPLES[key] || SAMPLES.default); }
+
+  function toggleSampleMenu(open) {
+    const show = open === undefined ? sampleList.hidden : open;
+    sampleList.hidden = !show;
+    sampleBtn.setAttribute("aria-expanded", String(show));
+  }
+
+  sampleBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleSampleMenu(); });
+  sampleList.querySelectorAll(".menu-item").forEach((item) =>
+    item.addEventListener("click", () => {
+      loadSample(item.dataset.sample);
+      toggleSampleMenu(false);
+    })
+  );
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".sample-menu")) toggleSampleMenu(false);
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleSampleMenu(false); });
+
+  // Empty-state shortcuts
+  $("#empty-sample").addEventListener("click", () => loadSample("default"));
+  $("#empty-sample-de").addEventListener("click", () => loadSample("pruefbericht"));
+
+  // ---- Export PDF (generated in-browser; downloads a .pdf directly, so it
+  // works even where the print dialog has no "Save as PDF" option). ----
+  $("#pdf-btn").addEventListener("click", exportPDF);
+
+  function exportPDF() {
+    if (!currentMarkdown.trim()) {
+      alert("Nothing to export yet — import a file or load a sample first.");
+      return;
+    }
+
+    // Build a clean, light, print-friendly sheet off-screen so the PDF looks
+    // the same regardless of the active screen theme.
+    const sheet = document.createElement("div");
+    sheet.className = "pdf-sheet";
+    let filename = "document";
+
+    if (document.body.getAttribute("data-theme") === "raw") {
+      const pre = document.createElement("pre");
+      pre.className = "pdf-raw";
+      pre.textContent = currentMarkdown;
+      sheet.appendChild(pre);
+    } else {
+      sheet.innerHTML = DOMPurify.sanitize(marked.parse(currentMarkdown));
+      const heading = sheet.querySelector("h1, h2");
+      if (heading) {
+        const slug = heading.textContent.trim()
+          .replace(/[^\wÀ-ɏ .-]+/g, "")
+          .replace(/\s+/g, "-")
+          .slice(0, 60);
+        if (slug) filename = slug;
+      }
+    }
+
+    const holder = document.createElement("div");
+    holder.style.cssText = "position:fixed;left:-10000px;top:0;";
+    holder.appendChild(sheet);
+    document.body.appendChild(holder);
+
+    const restore = sampleBtnBusy($("#pdf-btn"), "Exporting…");
+    const cleanup = () => { holder.remove(); restore(); };
+
+    html2pdf().set({
+      margin: [15, 14, 18, 14],
+      filename: filename + ".pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"] },
+    }).from(sheet).save().then(cleanup, cleanup);
+  }
+
+  // Briefly show a busy label on a button; returns a restore() fn.
+  function sampleBtnBusy(btn, label) {
+    const prev = btn.textContent;
+    btn.textContent = label;
+    btn.disabled = true;
+    return () => { btn.textContent = prev; btn.disabled = false; };
+  }
 
   // Drag & drop
   ["dragenter", "dragover"].forEach((evt) =>
@@ -299,11 +378,8 @@ Wirtschaftsprüfungsgesellschaft
 3. Allgemeine Auftragsbedingungen für Wirtschaftsprüfer und Wirtschaftsprüfungsgesellschaften
 `;
 
-  // Expose samples so the buttons/links can load them
+  // Samples loadable from the "Load sample" dropdown / empty-state links.
   const SAMPLES = { default: SAMPLE, pruefbericht: SAMPLE_PRUEFBERICHT };
-
-  $("#sample-de-btn").addEventListener("click", () => render(SAMPLES.pruefbericht));
-  $("#empty-sample-de").addEventListener("click", () => render(SAMPLES.pruefbericht));
 
   render(""); // start on the empty state
 })();
